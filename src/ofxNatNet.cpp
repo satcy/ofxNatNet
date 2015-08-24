@@ -620,32 +620,34 @@ struct ofxNatNet::InternalThread : public ofThread
 				}
 			}
 
-			// copy to mainthread
-			if (lock())
-			{
-				this->latency = latency;
-				this->frame_number = frame_number;
-				this->markers_set = markers_set;
-				this->markers = markers;
-				this->filterd_markers = filterd_markers;
+            // copy to mainthread
+            if ( frame_number >= this->frame_number || frame_number - this->frame_number < -1000 ) {
+                if (lock())
+                {
+                    this->latency = latency;
+                    this->frame_number = frame_number;
+                    this->markers_set = markers_set;
+                    this->markers = markers;
+                    this->filterd_markers = filterd_markers;
 
-				{
-					for (int i = 0; i < rigidbodies.size(); i++) {
-						RigidBody &RB = rigidbodies[i];
-						RigidBody &tRB = this->rigidbodies[RB.id];
-						tRB = RB;
-					}
-				}
-				{
-					for (int i = 0; i < skeletons.size(); i++) {
-						Skeleton &S = skeletons[i];
-						Skeleton &tS = this->skeletons[S.id];
-						tS = S;
-					}
-				}
+                    {
+                        for (int i = 0; i < rigidbodies.size(); i++) {
+                            RigidBody &RB = rigidbodies[i];
+                            RigidBody &tRB = this->rigidbodies[RB.id];
+                            tRB = RB;
+                        }
+                    }
+                    {
+                        for (int i = 0; i < skeletons.size(); i++) {
+                            Skeleton &S = skeletons[i];
+                            Skeleton &tS = this->skeletons[S.id];
+                            tS = S;
+                        }
+                    }
 
-				unlock();
-			}
+                    unlock();
+                }
+            }
 		}
 		else if (MessageID == 5)  // Data Descriptions
 		{
